@@ -1,0 +1,24 @@
+html {
+  font-size: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  background-color: rgb(236, 236, 236);
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+/* Deactivates the border firefox adds for links. */
+a { outline: none; }
+
+/* Hides the "clear button" at the edge of a text input field for IE */
+::-ms-clear {
+  display: none;
+}
