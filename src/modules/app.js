@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 export const HIDE_SNACKBAR = 'app/HIDE_SNACKBAR';
 export const OPEN_SNACKBAR = 'app/OPEN_SNACKBAR';
 

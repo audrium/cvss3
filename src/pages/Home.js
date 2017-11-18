@@ -1,8 +1,8 @@
 import React from 'react';
 import Typography from 'material-ui-next/Typography';
-import Button from 'material-ui-next/Button';
 import { Link } from 'react-router-dom';
 import { withStyles } from 'material-ui-next/styles';
+import BaseScore from '../components/BaseScore';
 
 const styles = theme => ({
     container: {
@@ -28,9 +28,14 @@ const Home = (props) => {
     const { classes } = props;
     return (
         <div className={classes.container}>
+            <BaseScore />
+
+            {/*
             <div className={classes.textContainer}>
                 <Typography type="display1" gutterBottom>Common Vulnerability Scoring System Version 3.0 Calculator</Typography>
             </div>
+            */}
+
         </div>
     );
 }
