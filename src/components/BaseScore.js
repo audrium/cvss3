@@ -1,4 +1,7 @@
 import React from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 import { withStyles } from 'material-ui-next/styles';
 import Card, { CardHeader, CardContent } from 'material-ui-next/Card';
 import Typography from 'material-ui-next/Typography';
@@ -7,8 +10,19 @@ import Checkbox from 'material-ui-next/Checkbox';
 import Avatar from 'material-ui-next/Avatar';
 import Grid from 'material-ui-next/Grid';
 import Tooltip from 'material-ui-next/Tooltip';
+import Divider from 'material-ui-next/Divider';
 import blue from 'material-ui-next/colors/blue';
+import { openSnackbar } from '../modules/app';
 import { baseMetrics } from '../modules/baseMetrics';
+import { validateVector } from '../utils/utils';
+
+const mapStateToProps = state => ({
+    location: state.router.location,
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+    push, openSnackbar
+}, dispatch);
 
 const styles = theme => ({
     card: {
@@ -18,11 +32,6 @@ const styles = theme => ({
     },
     content: {
         paddingTop: 0,
-    },
-    title: {
-        marginBottom: 16,
-        fontSize: 16,
-        color: theme.palette.text.secondary,
     },
     listItem: {
         margin: 0,
@@ -34,34 +43,80 @@ const styles = theme => ({
     },
     avatar: {
         backgroundColor: blue[500],
+    },
+    vector: {
+        paddingTop: theme.spacing.unit * 2.5,
     }
 });
 
 class BaseScore extends React.Component {
 
     state = {
-        AV: null,
-        AC: null,
-        PR: null,
-        UI: null,
-        S: null,
-        C: null,
-        I: null,
-        A: null,
+        score: null,
+        baseValues: {
+            AV: null,
+            AC: null,
+            PR: null,
+            UI: null,
+            S: null,
+            C: null,
+            I: null,
+            A: null,
+        }
     }
 
-    calculateScore = () => {
-        const { AV, AC, PR, UI, S, C, I, A } = this.state;
+    componentDidMount() {
+        /*
+            Check if vector is specified in the URL.
+        */
+        const { hash } = this.props.location;
+        if (!hash) return;
+
+        // Validate vector
+        const vector = hash.substring(1); // Removes #
+        const valid = validateVector(vector);
+        if (!valid) {
+            return this.props.openSnackbar('Vector is not valid');
+        }
+
+        // Parse vector and save values to state
+        const values = vector.split(/[:/]/);
+        if (values.length !== 18) return;
+
+        const newValues = {
+            AV: values[3] || null,
+            AC: values[5] || null,
+            PR: values[7] || null,
+            UI: values[9] || null,
+            S: values[11] || null,
+            C: values[13] || null,
+            I: values[15] || null,
+            A: values[17] || null,
+        };
+        const score = this.calculateScore(newValues);
+        this.setState({ baseValues: newValues, score: score });
+    }
+
+    calculateScore = (values) => {
+        const { AV, AC, PR, UI, S, C, I, A } = values;
         if (!AV || !AC || !PR || !UI || !S || !C || !I || !A)
             return null;
 
         // TODO: implement score calc
-        return 7.8;
+        return { score: 7.8, vector: `CVSS:3.0/AV:${AV}/AC:${AC}/PR:${PR}/UI:${UI}/S:${S}/C:${C}/I:${I}/A:${A}` };
+    }
+
+    handleClick = (metric, value) => {
+        const newValues = { ...this.state.baseValues, [metric]: value };
+        const score = this.calculateScore(newValues);
+        this.setState({ baseValues: newValues, score: score });
+        const urlParam = score ? score.vector : null;
+        this.props.push({ ...this.props.location, hash: urlParam });
     }
 
     render() {
         const { classes } = this.props;
-        const score = this.calculateScore();
+        const { baseValues, score } = this.state;
         return (
             <div>
                 <Card className={classes.card}>
@@ -69,7 +124,7 @@ class BaseScore extends React.Component {
                         avatar={
                             score &&
                             <Avatar aria-label="Recipe" className={classes.avatar}>
-                                7.8
+                                {score.score}
                             </Avatar>
                         }
                         subheader="Base Score"
@@ -88,11 +143,11 @@ class BaseScore extends React.Component {
                                                 key={op.value}
                                                 dense
                                                 button
-                                                onClick={() => this.setState({ [metric.value]: op.value })}
+                                                onClick={() => this.handleClick([metric.value], op.value)}
                                                 className={classes.listItem}
                                             >
                                                 <Checkbox
-                                                    checked={this.state[metric.value] === op.value}
+                                                    checked={baseValues[metric.value] === op.value}
                                                     tabIndex={-1}
                                                     disableRipple
                                                 />
@@ -103,10 +158,22 @@ class BaseScore extends React.Component {
                                 </Grid>
                             ))}
                         </Grid>
+                        {score &&
+                            <div>
+                                <Divider light />
+                                <Typography type="caption" gutterBottom className={classes.vector}>
+                                    Vector: {score.vector}
+                                </Typography>
+                            </div>
+                        }
                     </CardContent>
                 </Card>
             </div>
         );
     }
 }
-export default withStyles(styles)(BaseScore);
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(withStyles(styles)(BaseScore));
