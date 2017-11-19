@@ -15,6 +15,7 @@ import blue from 'material-ui-next/colors/blue';
 import { openSnackbar } from '../modules/app';
 import { baseMetrics } from '../modules/baseMetrics';
 import { validateVector } from '../utils/utils';
+import { calcBaseScore } from '../utils/calcBaseScore';
 
 const mapStateToProps = state => ({
     location: state.router.location,
@@ -72,8 +73,12 @@ class BaseScore extends React.Component {
         const { hash } = this.props.location;
         if (!hash) return;
 
-        // Validate vector
         const vector = hash.substring(1); // Removes #
+        this.setVector(vector);
+    }
+
+    setVector(vector) {
+        // Validate vector
         const valid = validateVector(vector);
         if (!valid) {
             return this.props.openSnackbar('Vector is not valid');
@@ -102,8 +107,8 @@ class BaseScore extends React.Component {
         if (!AV || !AC || !PR || !UI || !S || !C || !I || !A)
             return null;
 
-        // TODO: implement score calc
-        return { score: 7.8, vector: `CVSS:3.0/AV:${AV}/AC:${AC}/PR:${PR}/UI:${UI}/S:${S}/C:${C}/I:${I}/A:${A}` };
+        const score = calcBaseScore(values);
+        return { score: score, vector: `CVSS:3.0/AV:${AV}/AC:${AC}/PR:${PR}/UI:${UI}/S:${S}/C:${C}/I:${I}/A:${A}` };
     }
 
     handleClick = (metric, value) => {
