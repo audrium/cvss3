@@ -13,7 +13,7 @@ import Tooltip from 'material-ui-next/Tooltip';
 import Divider from 'material-ui-next/Divider';
 import blue from 'material-ui-next/colors/blue';
 import { openSnackbar } from '../modules/app';
-import { baseMetrics } from '../modules/baseMetrics';
+import { BASE_METRICS } from '../modules/baseMetrics';
 import { validateVector } from '../utils/utils';
 import { calcBaseScore } from '../utils/calcBaseScore';
 
@@ -50,25 +50,44 @@ const styles = theme => ({
     }
 });
 
+const INITIAL_VALUES = {
+    AV: null,
+    AC: null,
+    PR: null,
+    UI: null,
+    S: null,
+    C: null,
+    I: null,
+    A: null,
+};
+
 class BaseScore extends React.Component {
 
     state = {
         score: null,
-        baseValues: {
-            AV: null,
-            AC: null,
-            PR: null,
-            UI: null,
-            S: null,
-            C: null,
-            I: null,
-            A: null,
+        baseValues: { ...INITIAL_VALUES }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        /*
+            Check if vector was changed in the URL and set new values
+        */
+        const { score } = this.state;
+        const vector = score ? score.vector : '';
+        const nextVector = nextProps.location.hash.substring(1); // Removes #
+
+        if (nextVector === "") {
+            return this.setState({ baseValues: { ...INITIAL_VALUES }, score: null });
+        }
+
+        if (nextVector !== vector) {
+            this.setVector(nextVector);
         }
     }
 
     componentDidMount() {
         /*
-            Check if vector is specified in the URL.
+            Check if vector is specified in the URL on initial page load
         */
         const { hash } = this.props.location;
         if (!hash) return;
@@ -114,9 +133,10 @@ class BaseScore extends React.Component {
     handleClick = (metric, value) => {
         const newValues = { ...this.state.baseValues, [metric]: value };
         const score = this.calculateScore(newValues);
-        this.setState({ baseValues: newValues, score: score });
-        const urlParam = score ? score.vector : null;
-        this.props.push({ ...this.props.location, hash: urlParam });
+        this.setState({ baseValues: newValues, score: score }, () => {
+            if (!score) return;
+            this.props.push({ ...this.props.location, hash: score.vector });
+        });
     }
 
     render() {
@@ -136,8 +156,8 @@ class BaseScore extends React.Component {
                     />
                     <CardContent className={classes.content}>
                         <Grid container justify="flex-start" spacing={24}>
-                            {baseMetrics.map(metric => (
-                                <Grid item key={metric.value}>
+                            {BASE_METRICS.map(metric => (
+                                <Grid item key={metric.name}>
                                     <Tooltip title={metric.description} placement="bottom">
                                         <Typography type="caption" >{metric.title}</Typography>
                                     </Tooltip>
@@ -148,11 +168,11 @@ class BaseScore extends React.Component {
                                                 key={op.value}
                                                 dense
                                                 button
-                                                onClick={() => this.handleClick([metric.value], op.value)}
+                                                onClick={() => this.handleClick([metric.name], op.value)}
                                                 className={classes.listItem}
                                             >
                                                 <Checkbox
-                                                    checked={baseValues[metric.value] === op.value}
+                                                    checked={baseValues[metric.name] === op.value}
                                                     tabIndex={-1}
                                                     disableRipple
                                                 />

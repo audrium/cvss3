@@ -91,7 +91,7 @@ class Header extends Component {
                     <List className={classes.list}>
                         <ListItem button className={classes.link}>
                             <ListItemIcon><DraftsIcon /></ListItemIcon>
-                            <Link to="/home"><ListItemText primary="Home" /></Link>
+                            <Link to="/"><ListItemText primary="Home" /></Link>
                         </ListItem>
                         <Divider />
 

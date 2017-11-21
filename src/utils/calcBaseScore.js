@@ -1,62 +1,11 @@
-const METRIC_WEIGHTS = {
-    AV: {
-        N: 0.85,
-        A: 0.62,
-        L: 0.55,
-        P: 0.2
-    },
-    AC: {
-        H: 0.44,
-        L: 0.77
-    },
-    PR: {
-        U: {
-            N: 0.85,
-            L: 0.62,
-            H: 0.27
-        },
-        // These values are used if Scope is Unchanged
-        C: {
-            N: 0.85,
-            L: 0.68,
-            H: 0.5
-        }
-    },
-    // These values are used if Scope is Changed
-    UI: {
-        N: 0.85,
-        R: 0.62
-    },
-    S: {
-        U: 6.42,
-        C: 7.52
-    },
-    C: {
-        N: 0,
-        L: 0.22,
-        H: 0.56
-    },
-    I: {
-        N: 0,
-        L: 0.22,
-        H: 0.56
-    },
-    A: {
-        N: 0,
-        L: 0.22,
-        H: 0.56
-    }
-    // C, I and A have the same weights
-};
-const EXPLOITABILITY_COEF = 8.22;
-const SCOPE_COEF = 1.08;
+import { BASE_METRIC_WEIGHTS, EXPLOITABILITY_COEF, SCOPE_COEF } from '../modules/baseMetrics';
 
 function calcMetricWeights(metrics) {
     let weights = {};
     Object.entries(metrics).forEach(([metric, value]) => {
-        weights[metric] = METRIC_WEIGHTS[metric][value];
+        weights[metric] = BASE_METRIC_WEIGHTS[metric][value];
     });
-    weights.PR = METRIC_WEIGHTS.PR[metrics.S][metrics.PR];
+    weights.PR = BASE_METRIC_WEIGHTS.PR[metrics.S][metrics.PR];
     return weights;
 }
 
