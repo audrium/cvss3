@@ -10,7 +10,7 @@ import { hideSnackbar } from './modules/app';
 
 const mapStateToProps = state => ({
     app: state.app,
-    router: state.router,
+    location: state.router.location.pathname,
     loading: false
 });
 
@@ -34,7 +34,7 @@ class App extends Component {
                     open={this.state.drawerOpen}
                     handleDrawerOpen={() => this.setState({ drawerOpen: true })}
                     handleDrawerClose={() => this.setState({ drawerOpen: false })}
-                    location={this.props.router.location.pathname}
+                    location={this.props.location}
                 />
 
                 <div>
@@ -49,7 +49,6 @@ class App extends Component {
             </div>
         );
     }
-
 }
 
 export default withRouter(connect(

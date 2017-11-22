@@ -1,4 +1,4 @@
-import { BASE_METRIC_WEIGHTS, EXPLOITABILITY_COEF, SCOPE_COEF } from '../modules/baseMetrics';
+import { BASE_METRIC_WEIGHTS, EXPLOITABILITY_COEF, SCOPE_COEF } from '../metrics/base';
 
 function calcMetricWeights(metrics) {
     let weights = {};
@@ -9,7 +9,7 @@ function calcMetricWeights(metrics) {
     return weights;
 }
 
-export function calcBaseScore(metrics) {
+function calcScore(metrics) {
 
     // Get weights for all metrics
     const weights = calcMetricWeights(metrics);
@@ -30,4 +30,13 @@ export function calcBaseScore(metrics) {
         score = Math.min((exploitabality + impact) * SCOPE_COEF, 10);
     }
     return Math.ceil(score * 10) / 10;
+}
+
+export function calculateBaseScore(metrics) {
+    const { AV, AC, PR, UI, S, C, I, A } = metrics;
+    if (!AV || !AC || !PR || !UI || !S || !C || !I || !A)
+        return null;
+
+    const score = calcScore(metrics);
+    return { score: score, vector: `CVSS:3.0/AV:${AV}/AC:${AC}/PR:${PR}/UI:${UI}/S:${S}/C:${C}/I:${I}/A:${A}` };
 }

@@ -36,7 +36,8 @@ const styles = theme => ({
 });
 
 const Panel = (props) => {
-    const { classes, score, values, metrics } = props;
+    const { classes, title, score, vector, values, metrics } = props;
+    const showFooter = props.showFooter || false;
     return (
         <div>
             <Card className={classes.card}>
@@ -44,10 +45,10 @@ const Panel = (props) => {
                     avatar={
                         score &&
                         <Avatar aria-label="Recipe" className={classes.avatar}>
-                            {score.score}
+                            {score}
                         </Avatar>
                     }
-                    subheader="Base Score"
+                    subheader={title}
                 />
                 <CardContent className={classes.content}>
                     <Grid container justify="flex-start" spacing={24}>
@@ -78,11 +79,11 @@ const Panel = (props) => {
                             </Grid>
                         ))}
                     </Grid>
-                    {score &&
+                    {(showFooter && vector) &&
                         <div>
                             <Divider light />
                             <Typography type="caption" gutterBottom className={classes.vector}>
-                                Vector: {score.vector}
+                                Vector: {vector}
                             </Typography>
                         </div>
                     }

@@ -1,3 +1,5 @@
+import { replace } from 'react-router-redux';
+
 export const HIDE_SNACKBAR = 'app/HIDE_SNACKBAR';
 export const OPEN_SNACKBAR = 'app/OPEN_SNACKBAR';
 
@@ -32,5 +34,12 @@ export const openSnackbar = (message) => {
     return {
         type: OPEN_SNACKBAR,
         payload: message
+    }
+}
+
+export const updateVectorURL = (vector) => {
+    return (dispatch, getState) => {
+        const { location } = getState().router;
+        dispatch(replace({ ...location, hash: vector }));
     }
 }
