@@ -1,18 +1,10 @@
 import { BASE_METRIC_WEIGHTS, EXPLOITABILITY_COEF, SCOPE_COEF } from '../metrics/base';
-
-function calcMetricWeights(metrics) {
-    let weights = {};
-    Object.entries(metrics).forEach(([metric, value]) => {
-        weights[metric] = BASE_METRIC_WEIGHTS[metric][value];
-    });
-    weights.PR = BASE_METRIC_WEIGHTS.PR[metrics.S][metrics.PR];
-    return weights;
-}
+import { calcMetricWeights, round } from './utils';
 
 function calcScore(metrics) {
 
     // Get weights for all metrics
-    const weights = calcMetricWeights(metrics);
+    const weights = calcMetricWeights(BASE_METRIC_WEIGHTS, metrics);
 
     // Calculate the base score
     let score;
@@ -29,7 +21,7 @@ function calcScore(metrics) {
     } else {
         score = Math.min((exploitabality + impact) * SCOPE_COEF, 10);
     }
-    return Math.ceil(score * 10) / 10;
+    return round(score);
 }
 
 export function calculateBaseScore(metrics) {
