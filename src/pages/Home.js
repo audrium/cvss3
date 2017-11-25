@@ -2,13 +2,14 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { openSnackbar } from '../modules/app';
-import { updateBaseValues, nullBaseValues } from '../modules/main';
+import { setValues, clearValues } from '../modules/main';
 import Typography from 'material-ui-next/Typography';
 import { Link } from 'react-router-dom';
 import { withStyles } from 'material-ui-next/styles';
 import BaseScore from '../components/BaseScore';
-import { validateVector } from '../utils/utils';
-import { calculateBaseScore } from '../utils/calcBaseScore';
+import TemporalScore from '../components/TemporalScore';
+import { validateVector, getNextValue, parseVector } from '../utils/utils';
+import { calculateBaseScore, calculateTempScore } from '../utils/score';
 
 const mapStateToProps = state => ({
     location: state.router.location,
@@ -16,7 +17,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-    updateBaseValues, nullBaseValues, openSnackbar
+    setValues, clearValues, openSnackbar
 }, dispatch);
 
 const styles = theme => ({
@@ -33,7 +34,7 @@ class Home extends React.Component {
         const nextVector = nextProps.location.hash.substring(1); // Removes #
 
         if (nextVector === "") {
-            return this.props.nullBaseValues();
+            return this.props.clearValues();
         }
 
         if (nextVector !== vector) {
@@ -52,39 +53,35 @@ class Home extends React.Component {
     }
 
     setVector(vector) {
-        // Validate vector
+        // Parse vector and save values to state
         const valid = validateVector(vector);
         if (!valid) {
             return this.props.openSnackbar('Vector is not valid');
         }
 
-        // Parse vector and save values to state
-        const values = vector.split(/[:/]/);
-        if (values.length !== 18) return;
+        const values = parseVector(vector);
+        const base = calculateBaseScore(values.baseValues);
+        const temp = calculateTempScore(values.tempValues, base.score);
 
-        const newValues = {
-            AV: values[3] || null,
-            AC: values[5] || null,
-            PR: values[7] || null,
-            UI: values[9] || null,
-            S: values[11] || null,
-            C: values[13] || null,
-            I: values[15] || null,
-            A: values[17] || null,
-        };
-        const score = calculateBaseScore(newValues);
+        this.props.setValues({
+            vector: base.vector ? base.vector + temp.vector : null,
 
-        this.props.updateBaseValues({
-            values: newValues,
-            baseScores: score ? score.score : null,
-            vector: score ? score.vector : null,
+            baseVector: base.vector,
+            baseScores: base.score,
+            baseValues: values.baseValues,
+
+            tempVector: temp.vector,
+            tempScores: temp.score,
+            tempValues: values.tempValues,
         });
     }
 
     render() {
+        const { vector } = this.props;
         return (
             <div>
                 <BaseScore />
+                {vector && <TemporalScore />}
             </div>
         )
     }

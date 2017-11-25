@@ -37,9 +37,10 @@ export const openSnackbar = (message) => {
     }
 }
 
-export const updateVectorURL = (vector) => {
+export const updateVectorURL = () => {
     return (dispatch, getState) => {
         const { location } = getState().router;
+        const { vector } = getState().main;
         dispatch(replace({ ...location, hash: vector }));
     }
 }

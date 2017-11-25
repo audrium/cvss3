@@ -1,7 +1,10 @@
 import { BASE_METRIC_WEIGHTS, EXPLOITABILITY_COEF, SCOPE_COEF } from '../metrics/base';
+import { TEMPORAL_METRIC_WEIGHTS } from '../metrics/temporal';
 import { calcMetricWeights, round } from './utils';
 
-function calcScore(metrics) {
+// Calculate Base Score
+
+function calcBaseScore(metrics) {
 
     // Get weights for all metrics
     const weights = calcMetricWeights(BASE_METRIC_WEIGHTS, metrics);
@@ -29,6 +32,28 @@ export function calculateBaseScore(metrics) {
     if (!AV || !AC || !PR || !UI || !S || !C || !I || !A)
         return null;
 
-    const score = calcScore(metrics);
+    const score = calcBaseScore(metrics);
     return { score: score, vector: `CVSS:3.0/AV:${AV}/AC:${AC}/PR:${PR}/UI:${UI}/S:${S}/C:${C}/I:${I}/A:${A}` };
+}
+
+// Calculate Temporal Score
+
+export function calculateTempScore(metrics, baseScores) {
+    if (!baseScores) return { score: null, vector: null };
+
+    // Get weights for all metrics
+    const weights = calcMetricWeights(TEMPORAL_METRIC_WEIGHTS, metrics);
+
+    // Calcultate temporal score
+    const score = round(baseScores * weights.E * weights.RL * weights.RC);
+
+    // Define new vector
+    const { E, RL, RC } = metrics;
+    let vector = "";
+
+    if (E !== "X") vector += "/E:" + E;
+    if (RL !== "X") vector += "/RL:" + RL;
+    if (RC !== "X") vector += "/RC:" + RC;
+
+    return { score: score, vector: vector };
 }

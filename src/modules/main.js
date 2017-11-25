@@ -1,9 +1,9 @@
-export const UPDATE_VECTOR = 'UPDATE_VECTOR';
-export const UPDATE_BASE_SCORES = 'UPDATE_BASE_SCORES';
+export const CLEAR_VALUES = 'CLEAR_VALUES';
+export const SET_VALUES = 'SET_VALUES';
 export const UPDATE_BASE_VALUES = 'UPDATE_BASE_VALUES';
 export const UPDATE_TEMPORAL_VALUES = 'UPDATE_TEMPORAL_VALUES';
 
-const initialBaseValues = {
+export const initialBaseValues = {
     AV: null,
     AC: null,
     PR: null,
@@ -14,7 +14,7 @@ const initialBaseValues = {
     A: null,
 }
 
-const initialTemporalValues = {
+export const initialTemporalValues = {
     E: 'X',
     RL: 'X',
     RC: 'X',
@@ -23,9 +23,11 @@ const initialTemporalValues = {
 const initialState = {
     vector: null,
 
+    baseVector: null,
     baseScores: null,
     baseValues: { ...initialBaseValues },
 
+    tempVector: null,
     tempScores: null,
     tempValues: { ...initialTemporalValues },
 }
@@ -33,23 +35,33 @@ const initialState = {
 export default (state = initialState, action) => {
     switch (action.type) {
 
-        case UPDATE_VECTOR: {
-            const { vector } = action.payload;
-            return { ...state, vector: vector ? vector : state.vector }
+        case CLEAR_VALUES: {
+            return { ...initialState }
         }
 
-        case UPDATE_BASE_SCORES: {
-            const { baseScores } = action.payload;
-            return { ...state, baseScores: baseScores ? baseScores : state.baseScores }
+        case SET_VALUES: {
+            return {
+                vector: action.payload.vector,
+
+                baseVector: action.payload.baseVector,
+                baseScores: action.payload.baseScores,
+                baseValues: action.payload.baseValues,
+
+                tempVector: action.payload.tempVector,
+                tempScores: action.payload.tempScores,
+                tempValues: action.payload.tempValues,
+            }
         }
 
         case UPDATE_BASE_VALUES: {
             const { values, vector, baseScores } = action.payload;
+            const tempVector = state.tempVector || "";
             return {
                 ...state,
                 baseValues: values,
                 baseScores: baseScores,
-                vector: vector
+                baseVector: vector,
+                vector: vector ? vector + tempVector : null,
             }
         }
 
@@ -59,7 +71,8 @@ export default (state = initialState, action) => {
                 ...state,
                 tempValues: values,
                 tempScores: tempScores,
-                vector: vector
+                tempVector: vector,
+                vector: state.baseVector + vector,
             }
         }
 
@@ -76,12 +89,10 @@ export const updateBaseValues = payload => dispatch => {
     return Promise.resolve();
 }
 
-export const nullBaseValues = () => dispatch => {
-    return dispatch(updateBaseValues({
-        values: { ...initialBaseValues },
-        baseScores: null,
-        vector: null,
-    }));
+export const clearValues = () => dispatch => {
+    return dispatch({
+        type: CLEAR_VALUES
+    });
 }
 
 export const updateTempValues = payload => dispatch => {
@@ -92,16 +103,9 @@ export const updateTempValues = payload => dispatch => {
     return Promise.resolve();
 }
 
-export const updateVector = (vector) => {
-    return {
-        type: UPDATE_VECTOR,
-        payload: vector
-    }
-}
-
-export const updateBaseScores = (scores) => {
-    return {
-        type: UPDATE_BASE_SCORES,
-        payload: scores
-    }
+export const setValues = payload => dispatch => {
+    return dispatch({
+        type: SET_VALUES,
+        payload: payload
+    });
 }

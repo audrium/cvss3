@@ -1,49 +1,47 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { BASE_METRICS } from '../metrics/base';
+import { TEMPORAL_METRICS } from '../metrics/temporal';
 import { updateVectorURL } from '../modules/app';
-import { updateBaseValues } from '../modules/main';
-import { calculateBaseScore } from '../utils/score';
+import { updateTempValues } from '../modules/main';
+import { calculateTempScore } from '../utils/score';
 import Panel from './Panel';
 
 const mapStateToProps = state => ({
-    vector: state.main.baseVector,
-    scores: state.main.baseScores,
-    values: state.main.baseValues,
+    baseScores: state.main.baseScores,
+    values: state.main.tempValues,
+    scores: state.main.tempScores,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-    updateVectorURL, updateBaseValues
+    updateVectorURL, updateTempValues
 }, dispatch);
 
-class BaseScore extends React.Component {
+class TemporalScore extends React.Component {
 
     handleClick = (metric, value) => {
         const newValues = { ...this.props.values, [metric]: value };
-        const score = calculateBaseScore(newValues);
+        const scores = calculateTempScore(newValues, this.props.baseScores);
 
-        this.props.updateBaseValues({
+        this.props.updateTempValues({
             values: newValues,
-            baseScores: score ? score.score : null,
-            vector: score ? score.vector : null,
+            tempScores: scores.score,
+            vector: scores.vector,
         }).then(() => {
-            if (!score) return;
+            if (!scores.vector) return;
             this.props.updateVectorURL();
         });
     }
 
     render() {
-        const { values, scores, vector } = this.props;
+        const { values, scores } = this.props;
         return (
             <Panel
-                title={'Base Score'}
+                title={'Temporal Score'}
                 score={scores}
-                vector={vector}
                 values={values}
-                metrics={BASE_METRICS}
+                metrics={TEMPORAL_METRICS}
                 onClick={this.handleClick}
-                showFooter={true}
             />
         );
     }
@@ -52,4 +50,4 @@ class BaseScore extends React.Component {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(BaseScore);
+)(TemporalScore);
