@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Route, withRouter } from 'react-router-dom';
 import Header from './components/Header';
-import Home from './pages/Home';
+import Home from './components/Home';
 import Snackbar from './components/Snackbar';
 import { hideSnackbar } from './modules/app';
 

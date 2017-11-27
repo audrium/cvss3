@@ -4,12 +4,13 @@ import { connect } from 'react-redux';
 import { openSnackbar } from '../modules/app';
 import { setValues, clearValues } from '../modules/main';
 import Typography from 'material-ui-next/Typography';
-import { Link } from 'react-router-dom';
 import { withStyles } from 'material-ui-next/styles';
 import BaseScore from '../components/BaseScore';
 import TemporalScore from '../components/TemporalScore';
-import { validateVector, getNextValue, parseVector } from '../utils/utils';
-import { calculateBaseScore, calculateTempScore } from '../utils/score';
+import EnvScore from '../components/EnvScore';
+import { validateVector, parseVector } from '../utils/utils';
+import { calculateBaseScore, calculateTempScore, calculateEnvScore } from '../utils/score';
+import blue from 'material-ui-next/colors/blue';
 
 const mapStateToProps = state => ({
     location: state.router.location,
@@ -21,6 +22,12 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 const styles = theme => ({
+    link: {
+        color: blue[600]
+    },
+    infoBar: {
+        marginLeft: 12
+    }
 });
 
 class Home extends React.Component {
@@ -62,9 +69,10 @@ class Home extends React.Component {
         const values = parseVector(vector);
         const base = calculateBaseScore(values.baseValues);
         const temp = calculateTempScore(values.tempValues, base.score);
+        const env = calculateEnvScore(values.envValues, values.baseValues, values.tempValues);
 
         this.props.setValues({
-            vector: base.vector ? base.vector + temp.vector : null,
+            vector: base.vector ? base.vector + temp.vector + env.vector : null,
 
             baseVector: base.vector,
             baseScores: base.score,
@@ -73,15 +81,23 @@ class Home extends React.Component {
             tempVector: temp.vector,
             tempScores: temp.score,
             tempValues: values.tempValues,
+
+            envVector: env.vector,
+            envScores: env.score,
+            envValues: values.envValues,
         });
     }
 
     render() {
-        const { vector } = this.props;
+        const { vector, classes } = this.props;
         return (
             <div>
                 <BaseScore />
                 {vector && <TemporalScore />}
+                {vector && <EnvScore />}
+                <Typography type="caption" className={classes.infoBar}>
+                    CVSS (Common Vulnerability Scoring System) is a free and open standard. It is owned and managed by <a target="_blank" rel="noopener noreferrer" href="https://www.first.org/cvss/specification-document" className={classes.link}>FIRST.Org</a>.
+                </Typography>
             </div>
         )
     }

@@ -37,7 +37,13 @@ export const TEMPORAL_METRICS = [
 ];
 
 export const TEMPORAL_METRIC_WEIGHTS = {
-    E: { X: 1, U: 0.91, P: 0.94, F: 0.97, H: 1 },
-    RL: { X: 1, O: 0.95, T: 0.96, W: 0.97, U: 1 },
-    RC: { X: 1, U: 0.92, R: 0.96, C: 1 },
+    E: {
+        X: 1, U: 0.91, P: 0.94, F: 0.97, H: 1
+    },
+    RL: {
+        X: 1, O: 0.95, T: 0.96, W: 0.97, U: 1
+    },
+    RC: {
+        X: 1, U: 0.92, R: 0.96, C: 1
+    },
 };
