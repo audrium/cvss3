@@ -1,7 +1,7 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Route, withRouter } from 'react-router-dom';
+import { BrowserRouter as Router, Route, withRouter } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './components/Home';
 import Snackbar from './components/Snackbar';
@@ -20,9 +20,9 @@ const App = (props) => {
     return (
         <div>
             <Header />
-            <div>
+            <Router basename="/cvss3">
                 <Route exact path="/" component={Home} />
-            </div>
+            </Router>
             <Snackbar
                 open={snackbarShown}
                 message={snackbarMessage}

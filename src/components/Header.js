@@ -22,7 +22,7 @@ const Header = (props) => {
             <AppBar position="static">
                 <Toolbar>
                     <Typography type="title">
-                        <Link to="/" className={classes.title}>CVSS v3 Calculator</Link>
+                        <Link to="/cvss3/" className={classes.title}>CVSS v3 Calculator</Link>
                     </Typography>
                 </Toolbar>
             </AppBar>
