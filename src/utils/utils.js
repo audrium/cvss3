@@ -21,31 +21,18 @@ export function round(num) {
     return Math.ceil(num * 10) / 10;
 }
 
-export function getNextValue(array, element) {
-    const index = array.indexOf(element);
-    return index === -1 ? null : array[index + 1];
-}
-
 export function parseVector(vector) {
+    const values = vector.substring(9).split('/'); // Remove 'CVSS:3.0/'
 
-    const values = vector.split(/[:/]/);
-    const baseValues = values.slice(0, 18);
-    const additionalValues = values.slice(18);
+    let base = { ...initialBaseValues };
+    let temp = { ...initialTemporalValues };
+    let env = { ...initialEnvValues };
 
-    let base = {};
-    Object.entries(initialBaseValues).forEach(([metric, value]) => {
-        base[metric] = getNextValue(baseValues, metric) || value;
-    });
-
-    let temp = {};
-    Object.entries(initialTemporalValues).forEach(([metric, value]) => {
-        temp[metric] = getNextValue(additionalValues, metric) || value;
-    });
-
-    let env = {};
-    Object.entries(initialEnvValues).forEach(([metric, value]) => {
-        env[metric] = getNextValue(additionalValues, metric) || value;
-    });
-
+    values.forEach(metricValue => {
+        const [metric, value] = metricValue.split(':');
+        if (metric in base) base[metric] = value;
+        if (metric in temp) temp[metric] = value;
+        if (metric in env) env[metric] = value;
+    })
     return { baseValues: base, tempValues: temp, envValues: env };
 }
