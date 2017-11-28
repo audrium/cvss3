@@ -45,7 +45,7 @@ const Panel = (props) => {
                     avatar={
                         score &&
                         <Avatar aria-label="Recipe" className={classes.avatar}>
-                            {score}
+                            {score.toFixed(1)}
                         </Avatar>
                     }
                     subheader={title}
